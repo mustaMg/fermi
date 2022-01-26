@@ -56,4 +56,4 @@ plt.show()
 #%%
 
 # ok i understand it now 
-# it wasnt :(
+# I did it xd
