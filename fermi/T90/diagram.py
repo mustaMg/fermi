@@ -53,8 +53,4 @@ plt.gca().set_xscale("log")
 plt.xlabel("T90 sec.")
 plt.ylabel("Number of Burst")
 plt.show()
-
-
-# gauss fit icin de binleme uygula
-
 #%%
