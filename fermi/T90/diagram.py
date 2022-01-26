@@ -23,11 +23,6 @@ frequancy = ([len(data[data['T90'].between(bin[i-1], bin[i])]) for i in range(0,
 # frequancy plot ederken kullanu=ilmiyor, amaci gauss fit cizerken sigma verisini elde etmek
 
 #   frequancy = ([len(data['T90'][(data['T90'] > bin[i]) & (data['T90'] < bin[i+1])]) for i in range(0, len(bin)-1)])
-
-# y icin olusturudugumuz logspace in sonucundan frequancyyi cikar
-# burada 3700 tane t90 yi 100 yada 50 adet gruba ayristiror
-# bunu kullanarak gauss fit olustur
-
 # GAUSS FIT
 import pylab as plb
 from math import e
@@ -41,10 +36,6 @@ def gaus(x,a,x0,sigma):
     return a*exp(-(x-x0)**2/(2*sigma**2))
 
 popt,pcov = curve_fit(gaus,frequancy,bin,p0=[1,mean,sigma])
-
-
-# i m at point that two of the graphs actually completed but gaussian 
-# fits scale not fits on y axis
 
 #%%
 # burada plt.hist degistirldi, hesaplamalari kolaylastirmak icin
