@@ -20,7 +20,7 @@ bin = np.array(np.logspace(-2,3, num= 50), dtype=np.float64)
 x = np.array(data['T90'].to_list(), dtype=np.float64)
 error = np.array(data['T90_ERROR'].to_list(), dtype=np.float64)
 frequancy = ([len(data[data['T90'].between(bin[i-1], bin[i])]) for i in range(0, len(bin-1))])
-# frequancy plot ederken kullanu=ilmiyor, amaci gauss fit cizerken sigma verisini elde etmek
+# frequancy plot ederken kullanilmiyor, amaci gauss fit cizerken sigma verisini elde etmek
 
 #   frequancy = ([len(data['T90'][(data['T90'] > bin[i]) & (data['T90'] < bin[i+1])]) for i in range(0, len(bin)-1)])
 # GAUSS FIT
@@ -36,8 +36,6 @@ def gaus(x,a,x0,sigma):
     return a*exp(-(x-x0)**2/(2*sigma**2))
 
 popt,pcov = curve_fit(gaus,frequancy,bin,p0=[1,mean,sigma])
-
-#%%
 # burada plt.hist degistirldi, hesaplamalari kolaylastirmak icin
 plt.figure()
 plt.hist(x, bins=bin, histtype='step')
