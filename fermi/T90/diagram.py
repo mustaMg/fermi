@@ -54,3 +54,6 @@ plt.xlabel("T90 sec.")
 plt.ylabel("Number of Burst")
 plt.show()
 #%%
+
+# ok i understand it now 
+# this this time it will be easy to change things on internet :D
