@@ -1,3 +1,4 @@
+#%%
 from astropy.io import fits         #reading fits files
 import matplotlib.pyplot as plt     #plotting the graph
 import numpy as np
@@ -25,7 +26,7 @@ def gauss(x, H, A, x0, sigma):
 def gauss_fit(x, y):
     mean = sum(x * y) / sum(y)
     sigma = np.sqrt(sum(y * (x - mean) ** 2) / sum(y))
-    popt, pcov = curve_fit(gauss, x, y, p0=[min(y), max(y), mean, sigma])
+    popt, pcov = curve_fit(gauss, x, y, maxfev=10**6,p0=[min(y), max(y), mean, sigma])
     return popt
 
 # for error plot
@@ -33,13 +34,19 @@ bincenters = 0.5*(xdata[1:]+xdata[:-1])
 menStd     = np.sqrt(ydata)
 width      = 0.001
 bincenters = np.append(bincenters, 0) # len of these data do not match, so I add zero to and
-
-gauss_1 = gauss(xdata[:25], *gauss_fit(xdata[:25], ydata[:25]))
-gauss_2 = gauss(xdata, *gauss_fit(xdata, ydata))[24:]
+x =18
+gauss_1 = gauss(xdata[:x], *gauss_fit(xdata[:x], ydata[:x]))
+gauss_2 = gauss(xdata[x-1:x+14], *gauss_fit(xdata[x-1:x+14], ydata[x-1:x+14]))
+gauss_3 = gauss(xdata[x+13:x+18], *gauss_fit(xdata[x+13:x+18], ydata[x+13:x+18]))
+gauss_4 = gauss(xdata[x+17:], *gauss_fit(xdata[x+17:], ydata[x+17:]))
 gauss_1[-1] = gauss_2[0]
+gauss_2[-1] = gauss_3[0]
+gauss_3[-1] = gauss_4[0]
 
-plt.plot(xdata[:25], gauss_1, 'r', label='fit', zorder=3)
-plt.plot(xdata[24:], gauss_2, 'r', label='fit', zorder=4)
+plt.plot(xdata[:x], gauss_1, 'r', label='fit', zorder=3)
+plt.plot(xdata[x-1:x+14], gauss_2, 'r', label='fit', zorder=4)
+plt.plot(xdata[x+13:x+18], gauss_3, 'r', label='fit', zorder=5)
+plt.plot(xdata[x+17:], gauss_4, 'r', label='fit', zorder=5)
 
 plt.bar(x=bincenters, height = ydata, width=width, color='w', yerr=menStd, zorder=2)
 # color is white because i coulndt find a way with out plotting data
@@ -48,3 +55,4 @@ plt.bar(x=bincenters, height = ydata, width=width, color='w', yerr=menStd, zorde
 plt.xlabel('T90 sec')
 plt.ylabel('Number of Burst')
 plt.show()
+#%%
