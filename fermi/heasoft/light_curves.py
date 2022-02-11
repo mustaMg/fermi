@@ -1,4 +1,3 @@
-from isort import place_module
 import pandas as pd
 from astropy.io import fits
 import numpy as np
@@ -25,7 +24,6 @@ TRIGTIME = hdul[1].header['TRIGTIME']
 
 count = count * NGOODPIX
 time = time - TRIGTIME
-# deneme
 
 max_c = (max(count['15-25'])*0.30)
 f, (ax1, ax2) = plt.subplots(2, 1, sharex=False, sharey=True)

@@ -1,0 +1,11 @@
+	0	1
+0	sw00965784000bevshsp_uf.evt.gz	sw00965784000bevtr.fits.gz
+1	sw00970886000bevshsp_uf.evt.gz	sw00970886000bevtr.fits.gz
+2	sw00965484000bevshsp_uf.evt.gz	sw00965484000bevtr.fits.gz
+3	sw00967774000bevshsp_uf.evt.gz	sw00967774000bevtr.fits.gz
+4	sw00963260000bevshsp_uf.evt.gz	sw00963260000bevtr.fits.gz
+5	sw00959917000bevshsp_uf.evt.gz	sw00959917000bevtr.fits.gz
+6	sw00966554000bevshsp_uf.evt.gz	sw00966554000bevtr.fits.gz
+7	sw00960102000bevshsp_uf.evt.gz	sw00960102000bevtr.fits.gz
+8	sw00959431000bevshsp_uf.evt.gz	sw00959431000bevtr.fits.gz
+9	sw00965638000bevshsp_uf.evt.gz	sw00965638000bevtr.fits.gz
