@@ -36,17 +36,32 @@ width      = 0.001
 bincenters = np.append(bincenters, 0) # len of these data do not match, so I add zero to and
 x =18
 gauss_1 = gauss(xdata[:x], *gauss_fit(xdata[:x], ydata[:x]))
+plt.plot(xdata[:x], gauss_1, 'r', label='fit', zorder=3)
+
 gauss_2 = gauss(xdata[x-1:x+14], *gauss_fit(xdata[x-1:x+14], ydata[x-1:x+14]))
 gauss_3 = gauss(xdata[x+13:x+18], *gauss_fit(xdata[x+13:x+18], ydata[x+13:x+18]))
-gauss_4 = gauss(xdata[x+17:], *gauss_fit(xdata[x+17:], ydata[x+17:]))
+gauss_4 = gauss(xdata[x+16:], *gauss_fit(xdata[x+16:], ydata[x+16:]))
 gauss_1[-1] = gauss_2[0]
 gauss_2[-1] = gauss_3[0]
 gauss_3[-1] = gauss_4[0]
 
-plt.plot(xdata[:x], gauss_1, 'r', label='fit', zorder=3)
-plt.plot(xdata[x-1:x+14], gauss_2, 'r', label='fit', zorder=4)
-plt.plot(xdata[x+13:x+18], gauss_3, 'r', label='fit', zorder=5)
-plt.plot(xdata[x+17:], gauss_4, 'r', label='fit', zorder=5)
+# in order to take symmetri of plots i have to do these:
+#       add x to index and start to plot inverse y
+
+i_ydata_1 = ydata[:x:]
+
+i_gauss_1 = gauss(xdata[x-1:x+17], *gauss_fit(xdata[x-1:x+17], i_ydata_1))
+plt.plot(xdata[x-1:x+17], i_gauss_1[::-1], 'black', linestyle='--', label='i_fit', zorder=3)
+
+i_ydata_2 = ydata[x+16:]
+i_xdata_2 = xdata[x+16::-1]
+i_xdata_2 = i_xdata_2[:len(i_ydata_2)]
+
+plt.plot(i_xdata_2, gauss_4[::], 'black', linestyle='--', label='fit', zorder=5)
+
+# plt.plot(xdata[x-1:x+14], gauss_2, 'r', label='fit', zorder=4)
+# plt.plot(xdata[x+13:x+18], gauss_3, 'r', label='fit', zorder=5)
+plt.plot(xdata[x+16:], gauss_4, 'r', label='fit', zorder=5)
 
 plt.bar(x=bincenters, height = ydata, width=width, color='w', yerr=menStd, zorder=2)
 # color is white because i coulndt find a way with out plotting data
