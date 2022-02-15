@@ -3,7 +3,8 @@ import pandas as pd
 from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
-
+import matplotlib as mpl
+mpl.rcParams['figure.dpi'] = 200
 hdul = fits.open('msec64.lc')
 
 # need to create energy ranges to give column names
@@ -26,15 +27,6 @@ NGOODPIX = hdul[1].header['NGOODPIX']
 count = count * NGOODPIX
 
 # error = pd.DataFrame([hdul[1].data[i][2] for i in range(len(hdul[1].data))])
-max_c = max(count['15-150'])
-sec5_count = count[(-0.1 < count.index) & (count.index < 5)]
-thrty_p = max(sec5_count['15-150'])* 0.3
-ind = count.index
-for i, photon in (zip(sec5_count.index, sec5_count['15-150'])):
-    if photon > thrty_p:
-        print(i, photon , max_c, thrty_p)
-
-#%%
 
 ###################################################################################################
 # plotting begins
@@ -45,29 +37,35 @@ ax1.set_xlim([-100,350])
 ax1.axvline(x = 5, color='b', linestyle='--', label='5.th sec')
 ax1.set_ylabel('Count rate/sec')
 
+# data between -1 and 5th sec
+sec5_count = count[(-1 < count.index) & (count.index < 5)] 
+max_c = max(sec5_count['15-150'])   # max photon count value
+
 # SECOND MORPHOLOGICAL CRITERIA
 # if count rate is below 11k look under %40 else %30
 thrty_p = max_c * 0.4 if max_c < 11000 else max_c * 0.3
 
+max_i = [i for i, ct in zip(sec5_count.index, sec5_count['15-150']) if ct == max_c][0]
 
-# sec5_count = count[(-0.5 < count.index) & (count.index < 6)]
 
 
+prcnt30_count = sec5_count[max_i < sec5_count.index]
+# above data set is the ones after %30 count values
+print(max_i)
+params = prcnt30_count['15-150']-thrty_p
+params = (params.abs()).sort_values()
+print(params)
+#%%
 # ax2 is zoomed one
 ax2.plot(count['15-150'])
-ax2.set_xlim([-10,30])
+ax2.set_xlim([-5,10])
 ax2.axhline(y = thrty_p, color='r', label='%30 count')
 ax2.axhline(y = 0, color='r', linestyle='--', label='background level')
 ax2.axvline(x = 5, color='b', linestyle='--', label='5.th sec')
-params = count['15-150'].iloc[(count['15-150']-thrty_p).abs().argsort()[:1]]
-params = params[(params.index>0)]
 ax2.axvline(x = params.index[0], color='g', linestyle='--', label='%30 index')
-ax2.legend(loc="upper right")
 ax2.set_ylabel('Count rate/sec')
 ax2.set_xlabel('Time since the trigger (sec)')
 
 
-plt.plot()
 plt.show()
-
 #%%

@@ -4,6 +4,8 @@ from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import matplotlib as mpl
+mpl.rcParams['figure.dpi'] = 200
 
 def get_path():
     try: 
@@ -55,32 +57,32 @@ def single_ch(grb, file_name):
     ax1.axvline(x = 5, color='b', linestyle='--', label='5.th sec')
     ax1.set_ylabel('Count rate/sec')
 
-    max_c = max(count['15-150'])
+    # data between -1 and 5th sec
+    sec5_count = count[(-1 < count.index) & (count.index < 5)] 
+    max_c = max(sec5_count['15-150'])   # max photon count value
 
     # SECOND MORPHOLOGICAL CRITERIA
     # if count rate is below 11k look under %40 else %30
     thrty_p = max_c * 0.4 if max_c < 11000 else max_c * 0.3
 
+    max_i = [i for i, ct in zip(sec5_count.index, sec5_count['15-150']) if ct == max_c][0]
 
-    # sec5_count = count[(-0.5 < count.index) & (count.index < 6)]
-
+    prcnt30_count = sec5_count[max_i < sec5_count.index]
+    params = prcnt30_count['15-150']-thrty_p
+    params = (params.abs()).sort_values()
 
     # ax2 is zoomed one
     ax2.plot(count['15-150'])
-    ax2.set_xlim([-10,30])
-    ax2.axhline(y = thrty_p, color='r', label='%30 count')
-    ax2.axhline(y = 0, color='r', linestyle='--', label='background level')
-    ax2.axvline(x = 5, color='b', linestyle='--', label='5.th sec')
-    params = count['15-150'].iloc[(count['15-150']-thrty_p).abs().argsort()[:1]]
-    params = params[(params.index>0)]
-    ax2.axvline(x = params.index[0], color='g', linestyle='--', label='%30 index')
-    ax2.legend(loc="upper right")
+    ax2.set_xlim([-5,10])
+    ax2.axhline(y = thrty_p, color='r')
+    ax2.axhline(y = 0, color='r', linestyle='--')
+    ax2.axvline(x = 5, color='b', linestyle='--')
+    ax2.axvline(x = params.index[0], color='g', linestyle='--')
     ax2.set_ylabel('Count rate/sec')
     ax2.set_xlabel('Time since the trigger (sec)')
 
-    print(f'{given_path}/{grb}/LC/{file_name}.png')
-    # plt.savefig(f'{given_path}/{grb}/LC/{file_name}.png')
-    plt.plot()
+    print(f'{given_path}/{grb}/LC/{file_name}.pdf')
+    # plt.savefig(f'{given_path}/{grb}/LC/{file_name}.pdf')
 
 
 def lc_picker(grb):
@@ -93,7 +95,7 @@ def lc_picker(grb):
         if 'LC' in file:
             os.chdir(f'{given_path}/{grb}/LC')
             for i in os.listdir():
-                if i == 'msec64.lc' or i == 'onesec.lc':
+                if i == 'msec64.lc':
                     file_name = i.split('.')[0]
                     single_ch(grb, file_name)
                 else:
@@ -108,5 +110,5 @@ def lc_picker(grb):
         return 1
 
 print([lc_picker(grb) for grb in grbs])
-
+plt.show()
 #%%
