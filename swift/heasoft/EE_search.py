@@ -4,7 +4,7 @@ from numpy import sqrt
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-hdul = fits.open('/Volumes/GoogleDrive/My Drive/Python/Fermi/swift/heasoft/data/onesec_4ch.lc')
+hdul = fits.open('/Volumes/GoogleDrive/My Drive/Python/Fermi/swift/heasoft/data/200409onesec_4ch.lc')
 
 e_min = (pd.DataFrame(hdul[2].data))['E_MIN'].to_list()
 e_min = ([int(i) for i in e_min])
@@ -42,7 +42,7 @@ path = '/Users/mustafagumustas/Downloads/Swift_BAT/bat_data/grb200303A/LC/unweig
 hhdul = fits.open(path)
 bg = pd.DataFrame(columns=column)       # unweighted count rate
 for i, ii in enumerate(column):
-    bg[str(ii)] = [x[1][i]*NGOODPIX for x in hhdul[1].data]
+    bg[str(ii)] = [x[1][i] for x in hhdul[1].data]
 bg['15-50'] = bg['15-25'] + bg['25-50'] # creating new data 
 
 time = pd.DataFrame([hhdul[1].data[i][0] for i in range(len(hhdul[1].data))])
@@ -59,28 +59,53 @@ dbg['15-50'] = (dbg['15-25'] + dbg['25-50']) / 2
 #######################################################################
 # REBIN DATA
 # selecting data between 5-350 secs
+def rebin_broken(df, binsize):
+    # this one is broken DON'T USE
+    df.index = df.index - 1
+    binned_df =df.groupby(df.index // binsize).sum()
 
+    unique, counts = np.unique((df.index // binsize), return_counts=True)
+    sonuc = (dict(zip(unique, counts)))
+    
+    for i in binned_df.index:
+        if sonuc[i] != 4:
+            binned_df = binned_df.drop([i])
+    return binned_df
 
+def bin_broken(df, n):
+    tablo = (df.groupby(df.index // n).keys)
+    unique, counts = np.unique(tablo, return_counts=True)
+    sonuc = (dict(zip(unique, counts)))
+    for i in list(sonuc.items()):
+        if i[1] != n:
+            df.drop(df.tail(i[1]*2).index,inplace=True)
+        tablo = (df.groupby(df.index // n).sum())
+    return tablo
+
+def rebin(df, N):
+    bin = (np.linspace(min(df.index), max(df.index), int(len(df)/N)))
+    df['groups'] = (pd.cut(df.index, bin, include_lowest=True,  precision=0))
+    binned_mean = df.groupby("groups").mean()
+    return binned_mean
 # in order to bin the data we need a little modification to index
 # because python doesn't have a function to that we use groupby and sum them
 # it takes the index and look how many n in that index and groups the similars
 # then sums in one row. 
    
 rate2 = rate[(5 < rate.index) & (rate.index < 350)]
-rate2.index = rate2.index - 1   # we have to do this and use 4th s later filter
-binned_rate2  = (rate2.groupby(rate2.index // 4).sum())
+binned_rate2  = rebin(rate2, 4)
+
+print(min(binned_rate2['15-50']))
 
 error2 = error[(5 < error.index) & (error.index < 350)]
-error2.index = error2.index - 1
-bin_error2 = (error2.groupby(error2.index // 4).sum())
+bin_error2 = rebin(error2, 4)
 
 bbg = bg[(5 < bg.index) & (bg.index < 350)]
-bbg.index = bbg.index - 1
-bin_bbg = (bbg.groupby(bbg.index // 4).sum())
+bin_bbg = rebin(bbg, 4)
 
 dbbg = dbg[(5 < dbg.index) & (dbg.index < 350)]
-dbbg.index = dbbg.index - 1
-bin_dbbg = (dbbg.groupby(dbbg.index // 4).sum())
+bin_dbbg = rebin(dbbg, 4)
+
 
 # y0    count
 # dy0   error 
@@ -109,7 +134,7 @@ def SNR(live, phot, dphot, cr, dcr):
     counts = cr * live
     dcounts = dcr * live
 
-    sigma = sqrt( bin_bbg * live ) 
+    sigma = sqrt( phot * live ) 
     dsigma = ( 1/2 * (dphot/phot) ) * sigma
 
     snr = counts / sigma
@@ -128,30 +153,21 @@ dbbg2 = dbg[dbg.index < 5]
 
 snr2, dsnr2 = SNR(1, bbg2, dbbg2, rate3, error3)
 
-#   ERROR   #
-# every values is nan because of division, counts is ok but sigma is not
+# dsnr2 = dsnr2.dropna()
 
 
-live = 1
-phot = bbg2
-dphot = dbbg2
-cr = rate3
-dcr = error3
 
-counts = cr * live
-dcounts = dcr * live
-sigma = sqrt( bin_bbg * live ) 
-dsigma = ( 1/2 * (dphot/phot) ) * sigma
+counts = rate3 * 1
+dcounts = error3 * 1
+
+sigma = sqrt( bbg2 * 1 ) 
+dsigma = ( 1/2 * (dbbg2/bbg2) ) * sigma
 
 snr = counts / sigma
 dsnr = sqrt( (dcounts / counts)**2 + (dsigma / sigma)**2 ) * snr
-a = (((1/2) *(dphot/phot)))
-counts = counts[counts.index > -96]
-print(sqrt( bin_bbg * live ) )
-print(( 1/2 * (dphot/phot) ))
-print(sqrt( bin_bbg * live ))
-print(12976.095561/-304.859408)
-print(0.000098 * 12976.095561)
+
+
+
 
 # ------------------ #
 # snr22, dsnr22 = 
