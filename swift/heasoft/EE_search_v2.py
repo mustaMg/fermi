@@ -28,8 +28,7 @@ error = error[(error.index > -100) & (error.index < 350)]
 
 # creating 15-50 energy channel count and error values
 count[4] = count[0] + count[1] 
-error[4] = np.sqrt( (error[0]**2) + (error[1]**2) )
-
+error[4] = ( ( error[0].pow(2) ).add( error[1].pow(2) ) ).pow(1./2) 
 ################################################################################
 #                                                                              #
 #                                UNWEIGHTED                                    #
@@ -40,11 +39,10 @@ hdul2 = fits.open('/Users/mustafagumustas/Downloads/Swift_BAT/bat_data/grb200410
 
 bg = pd.DataFrame([i[1] for i in hdul2[1].data], index=time[0])
 bg = bg[(bg.index > -100) & (bg.index < 350)]
-dbg = np.sqrt(bg)
-
+dbg = bg.pow(1./2)
 bg[4] = bg[0] + bg[1]
-dbg[4] = (dbg[0] + dbg[1]) / 2
 
+dbg[4] = (dbg[0].add(dbg[1])).div(2)
 ################################################################################
 #                                                                              #
 #                                REBIN DATA                                    #
@@ -91,17 +89,20 @@ def SNR(live, phot, dphot, cr, dcr):
     counts = cr * live
     dcounts = dcr * live 
 
-    phot = phot * live
-    sigma = np.sqrt(phot)
-    dsigma = ( (1/2) * (dphot/phot) ) * sigma
+    sigma = (phot * live)**(1/2)
 
-    snr = counts / sigma
-    dsnr = ( np.sqrt( ((dcounts/phot)**2) + ((dsigma/sigma)**2) ) ) * snr
+    dsigma = ( (dphot/phot) * (1/2) ) * sigma
+
+    snr = counts/sigma
+    dsnr = ( ( ((dcounts / counts)**2) + ((dsigma / sigma)**2))**(1/2) ) * snr
+
     return snr , dsnr
+
 
 # snr of 5 sec and after
 snr ,dsnr = SNR(4, rbg, rdbg, rcount, rerror)
-
+print(snr)
+print(dsnr)
 # snr of 5 sec and before
 bg2    = bg[(bg.index > -100) & (bg.index < 5)]
 dbg2   = dbg[(dbg.index > -100) & (dbg.index < 5)]
@@ -124,7 +125,7 @@ dsnr2.index = [i for i in range(-100, 5)]
 
 def snr_diff(col1, col2):
     df = pd.DataFrame()
-    df['snr'] = col1; df['dsnr'] = col2; df['EE'] = df['snr']- (abs(df['dsnr']))
+    df['snr'] = col1; df['dsnr'] = col2/2; df['EE'] = df['snr'] - abs(df['dsnr'])
     df['index'] = df.index
     gt = [];    values = []
     for i in range(len(df)-1):
@@ -148,37 +149,37 @@ def EE_finder(snr, dsnr):
 # plt.axhline(y=1.5, color='red')
 # 
 
-fig, axs = plt.subplots(math.ceil(len(snr.columns)))
+fig, axs = plt.subplots(math.ceil(len(snr.columns)), sharex=True)
 for keys, values in EE_finder(snr,dsnr).items():
     merged = pd.concat([snr2[keys], snr[keys]])
     axs[keys].step(merged.index, merged, where='mid')
     # 1.5 line
-    axs[keys].axhline(y=1.5, color='red')
+    axs[keys].axhline(y=1.5, color='red', linestyle='--')
 
     # snr values that greater than 1.5 and their min max
     for i in range(len(values)):
         xx = max(values[i]) + 2
         y = min(values[i]) - 2
-        axs[keys].axvline(x=xx, color='red')
-        axs[keys].axvline(x=y, color='red')
+        axs[keys].axvline(x=xx, color='red', linestyle='--')
+        axs[keys].axvline(x=y, color='red', linestyle='--')
         # EE filled 
         axs[keys].axvspan(xx, y, alpha=0.1, color='red', hatch='/')
 
     xx = [i-2 for i in snr.index]
-    # axs[keys].scatter(xx, (snr[keys]-(2*abs(dsnr[keys]))), color='red')
-    # axs[keys].scatter(snr.index, snr[keys])
 
     # error for -100 5
     yy = [i-(abs(ii)) for i, ii in zip(snr2[keys], dsnr2[keys])]
     xx = [i-0.5 for i in snr2.index]
-    axs[keys].errorbar(snr.index, snr[keys], yerr=dsnr[keys], ls='none', zorder=2, ecolor='black')
+    y_er = dsnr2[keys]/2
+    axs[keys].errorbar(snr2.index, snr2[keys], yerr=y_er, ls='none', zorder=2, ecolor='black')
 
     # error for 5 350
     yy = [i-(abs(ii)) for i, ii in zip(snr[keys], dsnr[keys])][1:]
     xx = [i-2 for i in snr.index][1:]
-    axs[keys].errorbar(snr.index, snr[keys], yerr=dsnr[keys], ls='none', zorder=2, ecolor='black')
+    y_er = dsnr[keys]/2
+    axs[keys].errorbar(snr.index, snr[keys], yerr=y_er, ls='none', zorder=2, ecolor='black')
 
     
     # axs[keys].legend()
 print(EE_finder(snr,dsnr))
-# plt.show()
+plt.show()
