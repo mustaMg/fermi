@@ -1,11 +1,12 @@
 import math
 from astropy.io import fits
+from matplotlib import patches
 import pandas as pd 
 import numpy as np
 import matplotlib.pyplot as plt
 
 # reading weighted data 
-hdul = fits.open('/Volumes/GoogleDrive/My Drive/Python/Fermi/swift/heasoft/data/200410onesec_4ch.lc')
+hdul = fits.open('/Volumes/GoogleDrive/My Drive/Python/Fermi/swift/heasoft/data/200303onesec_4ch.lc')
 
 #creating tiem index values
 time = pd.DataFrame([i[0] for i in hdul[1].data])
@@ -35,7 +36,7 @@ error[4] = ( ( error[0].pow(2) ).add( error[1].pow(2) ) ).pow(1./2)
 #                                                                              #
 ################################################################################
 
-hdul2 = fits.open('/Users/mustafagumustas/Downloads/Swift_BAT/bat_data/grb200410A/LC/unweighted.lc')
+hdul2 = fits.open('/Users/mustafagumustas/Downloads/Swift_BAT/bat_data/grb200303A/LC/unweighted.lc')
 
 bg = pd.DataFrame([i[1] for i in hdul2[1].data], index=time[0])
 bg = bg[(bg.index > -100) & (bg.index < 350)]
@@ -73,10 +74,8 @@ rbg    = nD_bin(rbg, 4)
 rdbg   = nD_bin(rdbg, 4)
 
 # fixing their index 
-rcount.index = [i for i in range(5,349, 4)]
-rerror.index = [i for i in range(5,349, 4)]
-rbg.index    = [i for i in range(5,349, 4)]
-rdbg.index   = [i for i in range(5,349, 4)]
+rcount.index = [i for i in range(5,349, 4)];rerror.index = [i for i in range(5,349, 4)]
+rbg.index    = [i for i in range(5,349, 4)];rdbg.index   = [i for i in range(5,349, 4)]
 
 
 ################################################################################
@@ -101,8 +100,7 @@ def SNR(live, phot, dphot, cr, dcr):
 
 # snr of 5 sec and after
 snr ,dsnr = SNR(4, rbg, rdbg, rcount, rerror)
-print(snr)
-print(dsnr)
+
 # snr of 5 sec and before
 bg2    = bg[(bg.index > -100) & (bg.index < 5)]
 dbg2   = dbg[(dbg.index > -100) & (dbg.index < 5)]
@@ -120,8 +118,6 @@ dsnr2.index = [i for i in range(-100, 5)]
 #                           FIND EXTENDED EMISSION                             #
 #                                                                              #
 ################################################################################
-
-
 
 def snr_diff(col1, col2):
     df = pd.DataFrame()
@@ -144,15 +140,15 @@ def EE_finder(snr, dsnr):
         gt[i] = (snr_diff(snr[i], dsnr[i]))
     return gt
 
-# plt.step(snr.index, snr[0], zorder=1, where='mid')
-# y = [i-(abs(ii)) for i,ii in zip(snr[0], dsnr[0]) ]
-# plt.axhline(y=1.5, color='red')
-# 
-
 fig, axs = plt.subplots(math.ceil(len(snr.columns)), sharex=True)
+axs[0].set_title('grb200303A')
 for keys, values in EE_finder(snr,dsnr).items():
+    energy_ch = ['15-25', '25-50', '50-100', '100-150', '15-50']
     merged = pd.concat([snr2[keys], snr[keys]])
-    axs[keys].step(merged.index, merged, where='mid')
+    axs[keys].step(merged.index, merged, where='mid', linewidth=0.5)
+    print(energy_ch[keys])
+    lbl = patches.Patch(label=f'{energy_ch[keys]}')
+    axs[keys].legend(handles=[lbl])
     # 1.5 line
     axs[keys].axhline(y=1.5, color='red', linestyle='--')
 
@@ -171,15 +167,15 @@ for keys, values in EE_finder(snr,dsnr).items():
     yy = [i-(abs(ii)) for i, ii in zip(snr2[keys], dsnr2[keys])]
     xx = [i-0.5 for i in snr2.index]
     y_er = dsnr2[keys]/2
-    axs[keys].errorbar(snr2.index, snr2[keys], yerr=y_er, ls='none', zorder=2, ecolor='black')
+    axs[keys].errorbar(snr2.index, snr2[keys], yerr=y_er, ls='none', zorder=2, ecolor='black', elinewidth=0.5)
 
     # error for 5 350
     yy = [i-(abs(ii)) for i, ii in zip(snr[keys], dsnr[keys])][1:]
-    xx = [i-2 for i in snr.index][1:]
     y_er = dsnr[keys]/2
-    axs[keys].errorbar(snr.index, snr[keys], yerr=y_er, ls='none', zorder=2, ecolor='black')
+    axs[keys].errorbar(snr.index, snr[keys], yerr=y_er, ls='none', zorder=2, ecolor='black', elinewidth=0.5)
 
-    
-    # axs[keys].legend()
+
+plt.legend()
+
 print(EE_finder(snr,dsnr))
 plt.show()
