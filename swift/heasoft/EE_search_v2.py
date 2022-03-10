@@ -1,10 +1,11 @@
 import math
 from astropy.io import fits
 from matplotlib import patches
+import matplotlib
 import pandas as pd 
 import numpy as np
 import matplotlib.pyplot as plt
-
+matplotlib.rcParams['figure.dpi'] = 180
 results = pd.read_csv('/Users/mustafagumustas/Downloads/Swift_BAT/sample_list.csv', sep=';')
 for i in results['GRB Name']:
     if results['LongCriteria'][results['GRB Name'] ==i].values:
@@ -150,16 +151,16 @@ for i in results['GRB Name']:
             merged = pd.concat([snr2[keys], snr[keys]])
             axs[keys].step(merged.index, merged, where='mid', linewidth=0.5)
             lbl = patches.Patch(label=f'{energy_ch[keys]}')
-            axs[keys].legend(handles=[lbl])
+            axs[keys].legend(handles=[lbl], prop={'size': 6})
             # 1.5 line
-            axs[keys].axhline(y=1.5, color='red', linestyle='--')
+            axs[keys].axhline(y=1.5, color='red', linestyle='--', linewidth=0.5)
 
             # snr values that greater than 1.5 and their min max
             for i in range(len(values)):
                 xx = max(values[i]) + 2
                 y = min(values[i]) - 2
-                axs[keys].axvline(x=xx, color='red', linestyle='--')
-                axs[keys].axvline(x=y, color='red', linestyle='--')
+                axs[keys].axvline(x=xx, color='red', linestyle='--', linewidth=0.5)
+                axs[keys].axvline(x=y, color='red', linestyle='--', linewidth=0.5)
                 # EE filled 
                 axs[keys].axvspan(xx, y, alpha=0.1, color='red', hatch='/')
 
