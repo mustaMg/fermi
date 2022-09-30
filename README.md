@@ -1,4 +1,4 @@
-# swift
+# Search Extended Emission on GRB's
 My work about swift's GRB data analysis at TUBITAK STAR project.
 
 ## What is GRB?
