@@ -1,6 +1,7 @@
 # Search-of-Extended-Emissions-on-GRB-s
 My work about swift's GRB data analysis at TUBITAK STAR project.
 
+[Türkçe](https://github.com/mustafagumustas/Search-of-Extended-Emissions-on-GRB-s/blob/main/README.md)
 
 ## What is Gamma Ray Burst (GRB)?
 High energy event that happens out of the Milky Way. They are separated by their time that is called T90. T90, %90 of the time that all the photons comes to the detector. Long GRB are the one that has T90>2 and has soft spectrum, the short ones are T90<2 and has hard spectrum.
