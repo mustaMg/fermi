@@ -1,6 +1,8 @@
 # Sonrasında Uzun Süreli Işıma Evresi Gösteren Gama Işını Patlamalarının Bulunması
 Bu repoda TUBİTAK STAR projesi kapsamında yaptığım EE arayan kodlar bulunmakta.
 
+[English](https://github.com/mustafagumustas/Search-of-Extended-Emissions-on-GRB-s/blob/main/README_en.md)
+
 ## Gama Işın Patlamaları (GRB) nedir?
 Samanyolu Galaksisi dışından gelen çok yüksek enerjilere sahip, kozmik olaylardır. GRB’ler öncül ışınımdan gelen akı sürelerine göre uzun veya kısa süreli olmak üzere iki kategoriye ayrılırlar, bu süreye T90 denir. T90, dedektöre gelen fotonların %90’ının ne kadar sürede toplandığıdır. Uzun GRB’ler T90>2 sn ve yumuşak spektrumlu, kısa olanlar ise T90<2 sn ve sert spektrumlu olurlar. GRB’lerin spektrumlarının sertlik ve yumuşaklığı yüksek enerji kanalındaki toplam akısının düşük enerji kanalındaki toplam akısına oranıyla belirlenir, yüksek orana sahip olanlar (>1) sert spektrumludurlar.
 
